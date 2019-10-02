@@ -133,7 +133,7 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
         }
 #endif
 #if defined(BOOST_USE_TSAN)
-        __tsan_switch_to_fiber(tsan_fiber_handle);
+        __tsan_switch_to_fiber(tsan_fiber_handle, 0);
 #endif
         // context switch from parent context to `this`-context
         ::swapcontext( & from->uctx, & uctx);
@@ -195,7 +195,7 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
         __sanitizer_start_switch_fiber( & from->fake_stack, stack_bottom, stack_size);
 #endif
 #if defined(BOOST_USE_TSAN)
-        __tsan_switch_to_fiber(tsan_fiber_handle);
+        __tsan_switch_to_fiber(tsan_fiber_handle, 0);
 #endif
         // context switch from parent context to `this`-context
         ::swapcontext( & from->uctx, & uctx);
@@ -328,7 +328,7 @@ static fiber_activation_record * create_fiber1( StackAlloc && salloc, Fn && fn) 
     record->stack_size = record->uctx.uc_stack.ss_size;
 #endif
 #if defined(BOOST_USE_TSAN)
-    record->tsan_fiber_handle = __tsan_create_fiber();
+    record->tsan_fiber_handle = __tsan_create_fiber(0);
 #endif
     return record;
 }
