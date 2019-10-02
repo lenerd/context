@@ -81,6 +81,9 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
     void                                                    *   stack_bottom{ nullptr };
     std::size_t                                                 stack_size{ 0 };
 #endif
+#if defined(BOOST_USE_TSAN)
+    void                                                    *   tsan_fiber_handle{ nullptr };
+#endif
 
     static fiber_activation_record *& current() noexcept;
 
@@ -100,6 +103,9 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
     } 
 
     virtual ~fiber_activation_record() {
+#if defined(BOOST_USE_TSAN)
+        __tsan_destroy_fiber(tsan_fiber_handle);
+#endif
 	}
 
     fiber_activation_record( fiber_activation_record const&) = delete;
@@ -125,6 +131,9 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
         } else {
             __sanitizer_start_switch_fiber( & from->fake_stack, stack_bottom, stack_size);
         }
+#endif
+#if defined(BOOST_USE_TSAN)
+        __tsan_switch_to_fiber(tsan_fiber_handle);
 #endif
         // context switch from parent context to `this`-context
         ::swapcontext( & from->uctx, & uctx);
@@ -184,6 +193,9 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
 #endif
 #if defined(BOOST_USE_ASAN)
         __sanitizer_start_switch_fiber( & from->fake_stack, stack_bottom, stack_size);
+#endif
+#if defined(BOOST_USE_TSAN)
+        __tsan_switch_to_fiber(tsan_fiber_handle);
 #endif
         // context switch from parent context to `this`-context
         ::swapcontext( & from->uctx, & uctx);
@@ -315,6 +327,9 @@ static fiber_activation_record * create_fiber1( StackAlloc && salloc, Fn && fn) 
     record->stack_bottom = record->uctx.uc_stack.ss_sp;
     record->stack_size = record->uctx.uc_stack.ss_size;
 #endif
+#if defined(BOOST_USE_TSAN)
+    record->tsan_fiber_handle = __tsan_create_fiber();
+#endif
     return record;
 }
 
@@ -349,6 +364,9 @@ static fiber_activation_record * create_fiber2( preallocated palloc, StackAlloc 
 #if defined(BOOST_USE_ASAN)
     record->stack_bottom = record->uctx.uc_stack.ss_sp;
     record->stack_size = record->uctx.uc_stack.ss_size;
+#endif
+#if defined(BOOST_USE_TSAN)
+    record->tsan_fiber_handle = __tsan_create_fiber();
 #endif
     return record;
 }

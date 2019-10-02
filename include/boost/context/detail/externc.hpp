@@ -15,6 +15,16 @@ void __sanitizer_finish_switch_fiber( void *, const void **, size_t *);
 }
 #endif
 
+#if defined(BOOST_USE_TSAN)
+extern "C" {
+void *__tsan_get_current_fiber(void);
+void *__tsan_create_fiber(unsigned flags);
+void __tsan_destroy_fiber(void *fiber);
+void __tsan_switch_to_fiber(void *fiber, unsigned flags);
+void __tsan_set_fiber_name(void *fiber, const char *name);
+}
+#endif
+
 #if defined(BOOST_USE_SEGMENTED_STACKS)
 extern "C" {
 void __splitstack_getcontext( void * [BOOST_CONTEXT_SEGMENTS]);
