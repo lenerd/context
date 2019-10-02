@@ -100,6 +100,9 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
     fiber_activation_record( stack_context sctx_) noexcept :
         sctx( sctx_ ),
         main_ctx( false ) {
+#if defined(BOOST_USE_TSAN)
+        tsan_fiber_handle = __tsan_create_fiber(0);
+#endif
     } 
 
     virtual ~fiber_activation_record() {
@@ -271,7 +274,7 @@ public:
                                          & from->stack_size);
 #endif
 #if defined(BOOST_USE_TSAN)
-        tsan_fiber_handle = __tsan_create_fiber(0);
+        // tsan_fiber_handle = __tsan_create_fiber(0);
 #endif
         Ctx c{ from };
         try {
@@ -331,7 +334,7 @@ static fiber_activation_record * create_fiber1( StackAlloc && salloc, Fn && fn) 
     record->stack_size = record->uctx.uc_stack.ss_size;
 #endif
 #if defined(BOOST_USE_TSAN)
-    record->tsan_fiber_handle = __tsan_create_fiber(0);
+    // record->tsan_fiber_handle = __tsan_create_fiber(0);
 #endif
     return record;
 }
@@ -369,7 +372,7 @@ static fiber_activation_record * create_fiber2( preallocated palloc, StackAlloc 
     record->stack_size = record->uctx.uc_stack.ss_size;
 #endif
 #if defined(BOOST_USE_TSAN)
-    record->tsan_fiber_handle = __tsan_create_fiber(0);
+    // record->tsan_fiber_handle = __tsan_create_fiber(0);
 #endif
     return record;
 }
