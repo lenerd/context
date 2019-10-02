@@ -95,6 +95,9 @@ struct BOOST_CONTEXT_DECL fiber_activation_record {
                     std::error_code( errno, std::system_category() ),
                     "getcontext() failed");
         }
+#if defined(BOOST_USE_TSAN)
+        tsan_fiber_handle = __tsan_create_fiber(0);
+#endif
     }
 
     fiber_activation_record( stack_context sctx_) noexcept :
