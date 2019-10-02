@@ -270,7 +270,7 @@ public:
                                          (const void **) & from->stack_bottom,
                                          & from->stack_size);
 #endif
-#if defined(BOOST_USE_ASAN)
+#if defined(BOOST_USE_TSAN)
         tsan_fiber_handle = __tsan_create_fiber(0);
 #endif
         Ctx c{ from };
