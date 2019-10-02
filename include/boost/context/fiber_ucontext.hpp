@@ -366,7 +366,7 @@ static fiber_activation_record * create_fiber2( preallocated palloc, StackAlloc 
     record->stack_size = record->uctx.uc_stack.ss_size;
 #endif
 #if defined(BOOST_USE_TSAN)
-    record->tsan_fiber_handle = __tsan_create_fiber();
+    record->tsan_fiber_handle = __tsan_create_fiber(0);
 #endif
     return record;
 }
